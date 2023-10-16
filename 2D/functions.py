@@ -1,4 +1,4 @@
-from init import np
+from init import np,cmr,plt
 import init
 
 
@@ -39,3 +39,42 @@ def get_equilibrium_discrete_vels(macro_vels, rho):
     )
 
     return equi_discrete_vels
+
+
+def plots(X,Y,vel_magnitude,curl):
+# Velocity Magnitude Contour Plot in the top
+    plt.subplot(211)
+    plt.contourf(
+        X,
+        Y,
+        vel_magnitude,
+        levels=50,
+        cmap=cmr.amber,
+    )
+    plt.colorbar().set_label("Velocity Magnitude")
+    plt.gca().add_patch(plt.Circle(
+        init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
+        init.OBJ_RADII_IDX,
+        color="darkgreen",
+    )
+    # Vorticity Magnitude Contour PLot in the bottom
+    plt.subplot(212)
+    plt.contourf(
+        X,
+        Y, 
+        curl,
+        levels=50,
+        cmap=cmr.redshift,
+        vmin=-0.02,
+        vmax= 0.02,
+    )
+    plt.colorbar().set_label("Vorticity Magnitude")
+    plt.gca().add_patch(plt.Circle(
+        init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
+        init.OBJ_RADII_IDX,
+        color="darkgreen",
+    )
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf()
+    return
