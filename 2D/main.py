@@ -2,7 +2,7 @@ from init import jax
 from init import np
 from init import tqdm
 from init import cmr
-from fu 
+from functions import get_rho,get_macro_vels,get_equilibrium_discrete_vels
 import init
 
 def main():
@@ -25,29 +25,18 @@ def main():
     vel_profile = np.zeros((init.N_POINTS_X,init.NPOINTS_Y,2))
     vel_profile = vel_profile.at[:,:,0].set(init.VMAX_IN_X)
     
-    def update(discrete_vels_prv):
+    def update(discrete_vels_prev):
 # 1. Apply outflow boundary condition on the right boundary
-        discrete_vels_prv=discrete_vels_prv.at[-1,:,init.V_LEFT].set(discrete_vels_prev[-2,:,init.V_LEFT])
+        discrete_vels_prev=discrete_vels_prev.at[-1,:,init.V_LEFT].set(discrete_vels_prev[-2,:,init.V_LEFT])
      
 # 2. Compute Macroscopic Quantities (density and velocities)
-        rho_prev=.get_rho(discrete_vels_prev)  
+        rho_prev=get_rho(discrete_vels_prev)  
         macro_vels_prev = get_equilibrium_discrete_vels(discrete_vels_prev,rho_prev):
 
 #3. Apply Inflow Profile by Zou/He Dirichlet Boundary Condition on the left boundary   
-         macro_vels_prev =\
-            macro_vels_prev.at[0, 1:-1, :].set(
-                vel_profile[0, 1:-1, :]
-            )
-        rho_prev = rho_prev.at[0, :].set(
-            (
-                get_rho(discrete_vels_prev[0, :, ONLY_Y].T)
-                +
-                2 *
-                get_RHO(discrete_vels_prev[0, :, V_LEFT].T)
-            ) / (
-                1 - macro_vels_prev[0, :, 0]
-            )
-        )
+        macro_vels_prev = macro_vels_prev.at[0, 1:-1, :].set(vel_profile[0, 1:-1, :])
+        rho_prev = rho_prev.at[0, :].set((get_rho(discrete_vels_prev[0, :, init.ONLY_Y].T)+
+                                          2 *get_rho(discrete_vels_prev[0, :, init.V_LEFT].T)) / (1 - macro_vels_prev[0, :, 0]))
 
 # (4) Compute discrete Equilibria velocities
 
