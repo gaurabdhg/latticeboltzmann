@@ -53,10 +53,10 @@ def plots(X,Y,vel_magnitude,curl):
     )
     plt.colorbar().set_label("Velocity Magnitude")
     plt.gca().add_patch(plt.Circle(
-        init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
+        (init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
         init.OBJ_RADII_IDX,
         color="darkgreen",
-    )
+    ))
     # Vorticity Magnitude Contour PLot in the bottom
     plt.subplot(212)
     plt.contourf(
@@ -70,11 +70,11 @@ def plots(X,Y,vel_magnitude,curl):
     )
     plt.colorbar().set_label("Vorticity Magnitude")
     plt.gca().add_patch(plt.Circle(
-        init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
+        (init.OBJ_CENTER_X,init.OBJ_CENTER_Y),
         init.OBJ_RADII_IDX,
         color="darkgreen",
-    )
+    ))
     plt.draw()
     plt.pause(0.0001)
-    plt.clf()
+    #plt.clf()
     return

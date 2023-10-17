@@ -10,8 +10,9 @@ def run():
     X,Y=np.meshgrid(x,y,indexing="ij")
     #masking the mesh to detect the obstacle
     obj_mask=(np.sqrt((X-init.OBJ_CENTER_X)**2 +(Y-init.OBJ_CENTER_Y)**2)<init.OBJ_RADII_IDX)
-    vel_profile = np.zeros((init.N_POINTS_X,init.NPOINTS_Y,2))
+    vel_profile = np.zeros((init.N_POINTS_X,init.N_POINTS_Y,2))
     vel_profile = vel_profile.at[:,:,0].set(init.VMAX_IN_X)
+
     @jax.jit
     def update(discrete_vels_prev):
         # 1. Apply outflow boundary condition on the right boundary
@@ -19,7 +20,7 @@ def run():
 
         # 2. Compute Macroscopic Quantities (density and velocities)
         rho_prev=get_rho(discrete_vels_prev)  
-        macro_vels_prev = get_equilibrium_discrete_vels(discrete_vels_prev,rho_prev):
+        macro_vels_prev = get_macro_vels(discrete_vels_prev,rho_prev)
         #3. Apply Inflow Profile by Zou/He Dirichlet Boundary Condition on the left boundary   part i
         macro_vels_prev = macro_vels_prev.at[0, 1:-1, :].set(vel_profile[0, 1:-1, :])
         rho_prev = rho_prev.at[0, :].set((get_rho(discrete_vels_prev[0, :, init.ONLY_Y].T)+
@@ -49,22 +50,22 @@ def run():
     discrete_vels_prev=get_equilibrium_discrete_vels(vel_profile,np.ones((init.N_POINTS_X,init.N_POINTS_Y)))
     
     for iter_idx in tqdm(range(init.N_ITER)):
-          discrete_vels_next=update(discrete_vels_prev)
-          discrete_vels_prev=discrete_vels_next
+        discrete_vels_next=update(discrete_vels_prev)
+        discrete_vels_prev=discrete_vels_next
           
-          if iter_idx % init.PLOT_EVERY ==0 and iter_idx > init.N_FIRST_SKIPS:
-                rho=get_rho(discrete_vels_next)
-                macro_vels=get_macro_vels(discrete_vels_next,rho)
-                
-                vel_magnitude=np.linalg.norm(macro_vels,axis=-1,ord=2)
-                du_dx,du_dy=np.gradient(macro_vels[...,0])
-                dv_dx,dv_dy=np.gradient(macro_vels[...,1])
-                curl=du_dy-dv_dx
+        if (iter_idx % init.PLOT_EVERY ==0) and iter_idx > init.N_FIRST_SKIPS and init.VISUALISE:
+            rho=get_rho(discrete_vels_next)
+            macro_vels=get_macro_vels(discrete_vels_next,rho)
+            
+            vel_magnitude=np.linalg.norm(macro_vels,axis=-1,ord=2)
+            du_dx,du_dy=np.gradient(macro_vels[...,0])
+            dv_dx,dv_dy=np.gradient(macro_vels[...,1])
+            curl=du_dy-dv_dx
     
-    plots()
+            plots(X,Y,vel_magnitude,curl)
     
     if init.VISUALISE:
-          plt.show()
+        plt.show()
                 
     return
 
