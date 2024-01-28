@@ -1,7 +1,5 @@
 from init import np,cmr,plt
-import init
-
-
+from init import defineConstants as init
 def get_rho(discrete_vels):
     # discrete velocity    : (N_x, N_y, 9)
     # Density:ρ = ∑ᵢ fᵢ
@@ -76,5 +74,6 @@ def plots(X,Y,vel_magnitude,curl):
     ))
     plt.draw()
     plt.pause(0.0001)
+    
     #plt.clf()
     return

@@ -1,15 +1,10 @@
 from init import jax,np,tqdm,cmr,plt
+from init import defineConstants as init 
 from functions import get_rho,get_macro_vels,get_equilibrium_discrete_vels,plots
-import init
 
-def run():
+def run(mesh,mask):
     jax.config.update("jax_enable_x64",True)
-    #mesh defination
-    x=np.arange(init.N_POINTS_X)
-    y=np.arange(init.N_POINTS_Y)
-    X,Y=np.meshgrid(x,y,indexing="ij")
-    #masking the mesh to detect the obstacle
-    obj_mask=(np.sqrt((X-init.OBJ_CENTER_X)**2 +(Y-init.OBJ_CENTER_Y)**2)<init.OBJ_RADII_IDX)
+    X,Y=mesh
     vel_profile = np.zeros((init.N_POINTS_X,init.N_POINTS_Y,2))
     vel_profile = vel_profile.at[:,:,0].set(init.VMAX_IN_X)
 
@@ -34,8 +29,7 @@ def run():
         discrete_vels_post_collision  = discrete_vels_prev-init.OMEGA*(discrete_vels_prev-equilibrium_discrete_vels)
         # (6) bounceback boundary to enforce no slip
         for i in range(init.N_DISCRETE):
-            discrete_vels_post_collision= discrete_vels_post_collision.at[obj_mask,init.LATTICE_IDX[i]].set(
-                    discrete_vels_prev[obj_mask,init.LATTICE_OPP_IDX[i]])
+            discrete_vels_post_collision= discrete_vels_post_collision.at[mask,init.LATTICE_IDX[i]].set(discrete_vels_prev[mask,init.LATTICE_OPP_IDX[i]])
         # (7) stream alongside lattice velocities
         discrete_vels_streams=discrete_vels_post_collision
         for i in range(init.N_DISCRETE):
@@ -66,8 +60,8 @@ def run():
     
     if init.VISUALISE:
         plt.show()
-                
+
+    print('\nNow exiting Simulation... \n ')
+
     return
 
-if __name__=="__main__":
-    run()
